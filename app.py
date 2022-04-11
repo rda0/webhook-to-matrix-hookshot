@@ -11,36 +11,40 @@ def slack(hook):
     incoming = request.json
     print('Got incoming /slack hook: ' + str(incoming))
 
-    if 'attachments' in incoming:
-        for attachment in incoming['attachments']:
-            color = ''
-            if 'color' in attachment:
-                color = str(attachment['color']).lower()
-            html += '<font color="' + color + '">' if color else ''
-            if 'title' in attachment:
-                title = str(attachment['title'])
-                if 'title_link' in attachment:
-                    title_link = str(attachment['title_link'])
-                    plain += title + ' ' + title_link + '\n'
-                    html += '<b><a href="' + title_link + '">' + title + '</a></b><br/>\n'
-                else:
-                    plain += title + '\n'
-                    html += '<b>' + title + '</b>\n'
-            if 'text' in attachment:
-                text = str(attachment['text'])
-                plain += text + '\n'
-                html += text + '<br/>\n'
-            if 'fields' in attachment:
-                for field in attachment['fields']:
-                    if 'title' in field and 'value' in field:
-                        title = str(field['title'])
-                        value = str(field['value'])
-                        plain += title + ': ' + value + '\n'
-                        html += '<b>' + title + '</b>: ' + value + '<br/>\n'
-            html += '</font>' if color else ''
+    attachments = incoming.get('attachments', [])
+    username = str(incoming.get('username', ''))
+
+    for attachment in attachments:
+        color = str(attachment.get('color', '')).lower()
+        title = str(attachment.get('title', ''))
+        title_link = str(attachment.get('title_link', ''))
+        text = str(attachment.get('text', ''))
+        fields = attachment.get('fields', [])
+
+        html += '<font color="' + color + '">' if color else ''
+
+        if title and title_link:
+            plain += title + ' ' + title_link + '\n'
+            html += '<b><a href="' + title_link + '">' + title + '</a></b><br/>\n'
+
+        if text:
+            plain += text + '\n'
+            html += text + '<br/>\n'
+
+        for field in fields:
+            title = str(field.get('title', ''))
+            value = str(field.get('value', ''))
+            if title and value:
+                plain += title + ': ' + value + '\n'
+                html += '<b>' + title + '</b>: ' + value + '<br/>\n'
+
+        html += '</font>' if color else ''
 
     if plain and html:
-        json = {'text':plain,'html':html}
+        if username:
+            json = {'text':plain,'html':html,'username':username}
+        else:
+            json = {'text':plain,'html':html}
         print('Sending hookshot: ' + str(json))
         r = requests.post(url + hook, json=json)
     else:
@@ -53,7 +57,7 @@ def slack(hook):
 def grafana(hook):
     plain = ''
     html = ''
-    incoming = dict(request.json)
+    incoming = request.json
     print('Got incoming /grafana hook: ' + str(incoming))
 
     title = str(incoming.get('title', ''))
