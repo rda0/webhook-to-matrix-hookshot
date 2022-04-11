@@ -1,0 +1,17 @@
+[Unit]
+Description=webhook
+After=network.target
+
+[Service]
+ExecStart=/opt/webhook/env/bin/uwsgi --socket 127.0.0.1:9080 --wsgi-file app.wsgi --threads 5
+WorkingDirectory=/opt/webhook
+Restart=always
+RestartSec=60
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=webhook
+User=webhook
+Group=webhook
+
+[Install]
+WantedBy=default.target
