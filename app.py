@@ -53,7 +53,7 @@ def slack(hook):
 
     return {"ok":True}
 
-@app.route("/webhook/grafana/<hook>", methods=['POST'])
+@app.route("/webhook/grafana/<hook>", methods=['POST', 'PUT'])
 def grafana(hook):
     plain = ''
     html = ''
