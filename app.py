@@ -1,7 +1,6 @@
 import requests
 from flask import Flask, request, make_response
-
-url = 'https://hookshot.mbot.ethz.ch/webhook/'
+from config import url
 
 app = Flask(__name__)
 
@@ -9,8 +8,8 @@ app = Flask(__name__)
 def slack(hook):
     plain = ''
     html = ''
-    markdown = ''
     incoming = request.json
+    print('Got incoming /slack hook: ' + str(incoming))
 
     if 'attachments' in incoming:
         for attachment in incoming['attachments']:
@@ -40,19 +39,54 @@ def slack(hook):
                         html += '<b>' + title + '</b>: ' + value + '<br/>\n'
             html += '</font>' if color else ''
 
-    if text and html:
-        r = requests.post(url + hook, json={'text':plain,'html':html})
+    if plain and html:
+        json = {'text':plain,'html':html}
+        print('Sending hookshot: ' + str(json))
+        r = requests.post(url + hook, json=json)
     else:
-        print('Invalid format: ' + incoming)
+        print('Invalid format, sending unmodified.')
         r = requests.post(url + hook, json=incoming)
 
     return {"ok":True}
 
 @app.route("/webhook/grafana/<hook>", methods=['POST'])
 def grafana(hook):
-    incoming = request.json
-    r = requests.post(url + hook, json=incoming)
-    return incoming
+    plain = ''
+    html = ''
+    incoming = dict(request.json)
+    print('Got incoming /grafana hook: ' + str(incoming))
+
+    title = str(incoming.get('title', ''))
+    rule_url = str(incoming.get('ruleUrl', ''))
+    rule_name = str(incoming.get('ruleName', ''))
+    message = str(incoming.get('message', ''))
+    state = str(incoming.get('state', ''))
+    eval_matches = incoming.get('evalMatches', [])
+
+    if title and rule_url and rule_name:
+        plain += title + ' ' + rule_url + ': ' + rule_name + ' (' + state + ')\n'
+        html += '<b><a href="' + rule_url + '">' + title + '</a></b>: ' + rule_name + ' (' + state + ')<br/>\n'
+
+    if message:
+        plain += message + '\n'
+        html += message + '<br/>\n'
+
+    for eval_match in eval_matches:
+        metric = str(eval_match.get('metric', ''))
+        value = str(eval_match.get('value', ''))
+        if metric and value:
+            plain += metric + ': ' + value + '\n'
+            html += '<b>' + metric + '</b>: ' + value + '<br/>\n'
+
+    if plain and html:
+        json = {'text':plain,'html':html}
+        print('Sending hookshot: ' + str(json))
+        r = requests.post(url + hook, json=json)
+    else:
+        print('Invalid format, sending incoming as str.')
+        r = requests.post(url + hook, json={'text':'Invalid format: ' + str(incoming)})
+
+    return {"ok":True}
 
 if __name__ == "__main__":
     app.run(port=9080, debug=True)

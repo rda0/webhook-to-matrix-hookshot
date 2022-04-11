@@ -1,0 +1,4 @@
+.vim*
+.bash*
+.profile*
+env/
