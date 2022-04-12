@@ -19,6 +19,7 @@ def slack(hook):
         title = str(attachment.get('title', ''))
         title_link = str(attachment.get('title_link', ''))
         text = str(attachment.get('text', ''))
+        footer = str(attachment.get('footer', ''))
         fields = attachment.get('fields', [])
 
         html += '<font color="' + color + '">' if color else ''
@@ -26,6 +27,9 @@ def slack(hook):
         if title and title_link:
             plain += title + ' ' + title_link + '\n'
             html += '<b><a href="' + title_link + '">' + title + '</a></b><br/>\n'
+        elif title:
+            plain += title + '\n'
+            html += '<b>' + title + '</b><br/>\n'
 
         if text:
             plain += text + '\n'
@@ -37,6 +41,10 @@ def slack(hook):
             if title and value:
                 plain += title + ': ' + value + '\n'
                 html += '<b>' + title + '</b>: ' + value + '<br/>\n'
+
+        if footer:
+            plain += footer + '\n'
+            html += footer + '<br/>\n'
 
         html += '</font>' if color else ''
 
@@ -51,7 +59,9 @@ def slack(hook):
         print('Invalid format, sending unmodified.')
         r = requests.post(url + hook, json=incoming)
 
-    return {"ok":True}
+    response = make_response('ok', 200)
+    response.mimetype = "text/plain"
+    return response
 
 @app.route("/webhook/grafana/<hook>", methods=['POST', 'PUT'])
 def grafana(hook):
