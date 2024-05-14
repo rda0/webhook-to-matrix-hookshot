@@ -1,0 +1,11 @@
+{% if title and title_link %}
+{{ title }} {{ title_link }}
+{% elif title %}{{ title }}{% endif %}
+
+{% if text %}{{ text }}{% endif %}
+
+{% for field in fields %}
+{{ field.title }}: {{ value}}
+{% endfor %}
+
+{{ footer}}
