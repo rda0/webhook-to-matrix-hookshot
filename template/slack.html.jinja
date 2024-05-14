@@ -1,0 +1,25 @@
+{% if color %}
+<font color="{{ color}}">
+{% endif %}
+
+{% if title and title_link %}
+<b><a href="{{ title_link }}">{{ title}}</a></b><br/>
+{% elif title %}
+<b>{{ title}}</b><br/>
+{% endif %}
+
+{% if text %}
+{{ text }}<br />
+{% endif %}
+
+{% for field in fields %}
+<b>{{ field.title }}:</b> {{ value}}<br/>
+{% endfor %}
+
+{% if footer %}
+{{ footer}}<br/>
+{% endif %}
+
+{% if color%}
+</font>
+{% endif %}

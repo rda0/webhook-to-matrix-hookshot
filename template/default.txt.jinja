@@ -1,0 +1,26 @@
+{{ status | upper }}:{{ noFiring }} ({{ commonLabels.values() | join(" ") }})
+Grafana: {{ externalUrl }}?orgId={{ orgId }}
+
+{% if alerts | length %}
+{% for alert in alerts %}
+---
+Name: {{ alert.labels.alertname }}
+Status: {{ alert.status }}
+View alert: {{ alert.generatorURL }}
+Silence alert: {{ alert.silenceURL }}
+
+{% if alert.Values %}
+Values:
+{% for key, value in alert.Values.items() %}
+{{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+
+{% if alert.labels %}
+Labels
+{% for key, value in alert.labels.items() %}
+{{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}

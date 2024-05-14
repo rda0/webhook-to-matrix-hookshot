@@ -1,8 +1,12 @@
 import requests
-from flask import Flask, request, make_response
-from config import url
+from flask import Flask, request, make_response, render_template
 
-app = Flask(__name__)
+from config import url, hookshot_params, flask_params, msg_templates, msg_template_default
+from validate import grafana_validate_incoming
+
+
+app = Flask(__name__, **flask_params)
+
 
 @app.route("/webhook/slack/<hook>", methods=['POST'])
 def slack(hook):
@@ -65,35 +69,43 @@ def slack(hook):
 
 @app.route("/webhook/grafana/<hook>", methods=['POST', 'PUT'])
 def grafana(hook):
-    plain = ''
-    html = ''
+    """
+    see https://grafana.com/docs/grafana/latest/alerting/alerting-rules/manage-contact-points/integrations/webhook-notifier/
+    todo:
+    - handle query params to select different templates
+    - handle empty -> default
+    """
+
+    args = request.args
+    if "template" in args.keys():
+        template_type = args.get("template")
+        if template_type not in msg_templates:
+            template_type = msg_template_default
+    else:
+        template_type = msg_template_default
+
+    if "version" in args.keys():
+        version = args.get("version")
+    else:
+        version = "v2"
+
+    print(args)
+    print(f"template: {template_type}, version: {version}")
+
     incoming = request.json
     print('Got incoming /grafana hook: ' + str(incoming))
 
-    title = str(incoming.get('title', ''))
-    rule_url = str(incoming.get('ruleUrl', ''))
-    rule_name = str(incoming.get('ruleName', ''))
-    message = str(incoming.get('message', ''))
-    state = str(incoming.get('state', ''))
-    eval_matches = incoming.get('evalMatches', [])
+    if not isinstance(incoming, dict):
+        incoming = dict()
 
-    if title and rule_url and rule_name:
-        plain += title + ' ' + rule_url + ': ' + rule_name + ' (' + state + ')\n'
-        html += '<b><a href="' + rule_url + '">' + title + '</a></b>: ' + rule_name + ' (' + state + ')<br/>\n'
+    grafana_validate_incoming(incoming)
 
-    if message:
-        plain += message + '\n'
-        html += message + '<br/>\n'
-
-    for eval_match in eval_matches:
-        metric = str(eval_match.get('metric', ''))
-        value = str(eval_match.get('value', ''))
-        if metric and value:
-            plain += metric + ': ' + value + '\n'
-            html += '<b>' + metric + '</b>: ' + value + '<br/>\n'
+    t = lambda fmt: f"{template_type}.{fmt}.jinja"
+    plain = render_template(t("txt"), **incoming)
+    html = render_template(t("html"), **incoming)
 
     if plain and html:
-        json = {'text':plain,'html':html}
+        json = {'text':plain,'html':html, **hookshot_params}
         print('Sending hookshot: ' + str(json))
         r = requests.post(url + hook, json=json)
     else:
@@ -102,5 +114,6 @@ def grafana(hook):
 
     return {"ok":True}
 
+
 if __name__ == "__main__":
-    app.run(port=9080, debug=True)
+    app.run(host="0.0.0.0", port=9080, debug=True)

@@ -1,0 +1,18 @@
+{% if alerts | length %}
+{% for alert in alerts %}
+{{ "<br>" if not loop.first }}
+<b><a href="{{ alert.generatorURL }}">[{{ alert.status }}] {{ alert.labels.alertname }}</a></b> 
+(<a href="{{ alert.silenceURL }}">Silence</a>)<b>:</b>
+{% if alert.labels %}
+{% for key, value in alert.labels.items() %}
+{{ key }}={{ value }} {{- ", " if not loop.last else " " }}
+{% endfor %}
+{% endif %}
+<br>
+{% if alert.valuesForJinja %}
+{% for key, value in alert.valuesForJinja.items() %}
+<b>{{ key }}:</b> {{ value }}{{ ", " if not loop.last else " " }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
