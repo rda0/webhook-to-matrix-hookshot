@@ -13,7 +13,7 @@
 {% endif %}
 
 {% for field in fields %}
-<b>{{ field.title }}:</b> {{ value}}<br/>
+<b>{{ field['title'] }}:</b> {{ value}}<br/>
 {% endfor %}
 
 {% if footer %}
