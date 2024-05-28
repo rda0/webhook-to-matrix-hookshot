@@ -1,0 +1,67 @@
+{% for alert in alerts %}
+[{{ alert['status'] }}] {{ alert['labels']['alertname'] }}
+{% for key, value in alert['values'].items() %}
+{{ key }}: {{ value }}
+{% endfor %}
+
+{%- if alert['uniqueLabels'] %}
+Labels:
+{%- for key, value in alert['uniqueLabels'].items() %}
+{{- "," if not loop.first }}
+{{- " " + key }} = {{ value }}
+{% endfor %}{% endif %}
+
+{% if alert['uniqueAnnotations'] %}
+Annotations:
+{% for key, value in alert['uniqueAnnotations'].items() %}
+{{ key }} = {{ value }}
+{% endfor %}{% endif %}
+
+{%- if not commonStartsAtParsed %}
+StartsAt: {{alert['startsAtParsed'] }}{% if alert['endsAtParsed'] %}, EndsAt: {{alert['endsAtParsed'] }}
+{% endif %}
+{% endif %}{% endfor -%}
+
+Metadata:
+Grafana Folder: {{ commonLabels['grafana_folder'] }}
+{% if summary %}
+Summary: {{ summary }}
+{% endif -%}
+
+{% if description %}
+Description: {{ description }}
+{% endif -%}
+
+{% if groupLabels %}
+Grouped By:
+{{- "\n" if (groupLabels | length) > 1 else " " }}
+{%- for key, value in groupLabels.items() %}
+{{- key }} = {{ value }}
+{% endfor %}
+{% endif %}
+
+{%- if normalLabels %}
+Common Labels:
+{{- "\n" if (normalLabels | length) > 1 else " " }}
+{%- for key, value in normalLabels.items() %}
+{{- key }} = {{ value }}
+{%- endfor %}
+{% endif %}
+
+{%- if normalAnnotations %}
+Common Annotations:
+{% for key, value in normalAnnotations.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endif %}
+
+{%- if commonStartsAtParsed -%}
+Starts At: {{ commonStartsAtParsed -}}
+{% endif -%}
+{% if commonEndsAtParsed -%}
+Ends At: {{ commonEndsAtParsed -}}
+{%- endif -%}
+
+{%- if truncatedAlerts %}
+Truncated Alerts: {{ truncatedAlerts }}
+{% endif -%}

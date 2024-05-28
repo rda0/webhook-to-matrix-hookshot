@@ -5,7 +5,7 @@
 {% if text %}{{ text }}{% endif %}
 
 {% for field in fields %}
-{{ field.title }}: {{ value}}
+{{ field['title'] }}: {{ value}}
 {% endfor %}
 
 {{ footer}}

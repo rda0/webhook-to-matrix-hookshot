@@ -1,8 +1,0 @@
-{% if alerts | length %}{% for alert in alerts %}
-[{{ alert.status }}] {{ alert.labels.alertname }}:
-Alert: {{ alert.generatorURL }}
-Silence: {{ alert.silenceURL }}
-{% if alert.labels %}{% for key, value in alert.labels.items() %}{{ key }}={{ value }}, {% endfor %}{% endif %}
-{% if alert.valuesForJinja %}{% for key, value in alert.valuesForJinja.items() %}{{ key }}: {{ value }}, {% endfor %}{% endif %}
-___
-{% endfor %}{% endif %}

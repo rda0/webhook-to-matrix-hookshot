@@ -1,0 +1,12 @@
+{% if alerts | length %}{% for alert in alerts -%}
+<b><a href="{{ alert['generatorURL'] }}">[{{ alert.status }}]
+{{- "&#32;" + alert['labels']['alertname'] }}</a></b> 
+{%- for key, value in alert['uniqueLabels'].items() %}
+{{- " " + key }}={{value}}
+{%- endfor -%}
+&#32;(<a href="{{ alert['silenceURL'] }}">Silence</a>)&#32;
+{%- for key, value in alert['values'].items() %}
+{{- ",&#32;" if not loop.first -}}
+<b>{{ key }}:</b> {{ value }}
+{%- endfor %}<br>
+{%- endfor -%}{% endif -%}
