@@ -8,5 +8,6 @@
 {%- for key, value in alert['values'].items() %}
 {{- ",&#32;" if not loop.first -}}
 <b>{{ key }}:</b> {{ value }}
-{%- endfor %}<br>
+{%- endfor %}
+{{- "&#32;<b>Value:</b> [no value]&#32;" if not alert['values'] }}<br>
 {%- endfor -%}{% endif -%}

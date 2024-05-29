@@ -7,8 +7,9 @@
 <br>
 {%- for key, value in alert['values'].items() -%}
 {{- "<br>" if not loop.first }}
-<b>{{ key }}:</b> {{ value }}
+<b>{{ key }}:</b> {{ value -}}
 {%- endfor -%}
+{{- "<b>Value:</b> [no value]<br>" if not alert['values'] -}}
 
 <i>
 
@@ -30,14 +31,13 @@
 {{- key }} = {{ value }}<br>
 {%- endfor %}{% endif %}
 
-{%- if not commonStartsAtParsed %}
+{%- if not commonStartsAtParsed and alert['startsAtParsed'] %}
 <i>(StartsAt: {{alert['startsAtParsed'] }}{% if alert['endsAtParsed'] %}, EndsAt: {{alert['endsAtParsed'] }}{% endif %})</i><br>
-{% endif -%}
+{%- endif -%}
 
-</i></p>{% endfor %}
+</i></p>{% endfor -%}
 
-<p><b>Metadata:</b><br>
-<b>Grafana Folder:</b> {{ commonLabels['grafana_folder'] }}<br>
+<p><b>Metadata:</b><br><b>Grafana Folder:</b> {{ commonLabels['grafana_folder'] }}<br>
 {%- if summary -%}
 <b>Summary:</b> {{ summary }}<br>{% endif %}
 

@@ -3,6 +3,7 @@
 {% for key, value in alert['values'].items() %}
 {{ key }}: {{ value }}
 {% endfor %}
+{{- "Value: [no value]\n" if not alert['values'] }}
 
 {%- if alert['uniqueLabels'] %}
 Labels:

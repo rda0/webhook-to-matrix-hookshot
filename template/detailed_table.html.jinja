@@ -1,88 +1,62 @@
 {% for alert in alerts -%}
 <p><b><a href="{{ alert['generatorURL'] }}">[{{ status}}] {{ alert['labels']['alertname'] }}</a></b>(<a href="{{ alert['silenceURL'] }}">Silence</a>):
 
-{% if alert['values'] %}
-<table>
-<caption>Values</caption>
-{% for key, value in alert['values'].items() %}
-<tr>
-<th>{{ key }}</th>
-<td>{{ value }}</td>
-</tr>
-{% endfor %}
+{%- if alert['values'] -%}
+<table><caption>Values</caption>
+{%- for key, value in alert['values'].items() -%}
+<tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+{%- endfor -%}
 </table>
-{% else %}
-<br>
-{% endif %}
+{%- else -%}
+<br><b>Value:</b> [no value]<br>
+{%- endif %}
 
-{% if alert['uniqueLabels'] %}
-<table>
-<caption>Labels</caption>
+{%- if alert['uniqueLabels'] %}
+<table><caption>Labels</caption>
 {% for key, value in alert['uniqueLabels'].items() %}
-<tr>
-<td>{{ key }}</td>
-<td>{{ value }}</td>
-</tr>
+<tr><td>{{ key }}</td><td>{{ value }}</td></tr>
 {% endfor %}
 </table>
 {% endif %}
 
-{% if alert['uniqueAnnotations'] %}
-<b>Annotations</b>
-<table>
-    {% for key, value in alert['uniqueAnnotations'].items() %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
+{%- if alert['uniqueAnnotations'] %}
+<table><caption>Annotations</caption>
+{%- for key, value in alert['uniqueAnnotations'].items() -%}
+<tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+{%- endfor -%}
 </table>
-{% endif %}
+{% endif -%}
 
-<i>(StartsAt: {{alert['startsAtParsed'] }}{% if alert['endsAtParsed'] %}, EndsAt: {{alert['endsAtParsed'] }}{% endif %})</i>
-</p>
-{% endfor %}
+{%- if alert['startsAtParsed'] %}
+<i>(StartsAt: {{alert['startsAtParsed'] }}{% if alert['endsAtParsed'] %}, EndsAt: {{alert['endsAtParsed'] }}{% endif %})</i></p>
+{%- endif -%}
+{%- endfor -%}
 
-<p><b>Metadata:</b></p>
-
-<table>
-<tr><td>Grafana Folder</td><td>{{ commonLabels['grafana_folder'] }}</td></tr>
+<p><b>Metadata:</b></p><table><tr><td>Grafana Folder</td><td>{{ commonLabels['grafana_folder'] }}</td></tr>
 {%- if summary -%}<tr><td>Summary</td><td>{{ summary }}</td></tr>{% endif %}
 {%- if description -%}<tr><td>Description</td><td>{{ description }}</td>{% endif %}
 </table>
 
-{% if groupLabels %}
-<table>
-    <caption>Grouped By:</caption>
-    {% for key, value in groupLabels.items() %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
+{%- if groupLabels %}
+<table><caption>Grouped By:</caption>
+{%- for key, value in groupLabels.items() %}
+<tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+{%- endfor -%}
 </table>
-{% endif %}
+{%- endif %}
 
-{% if normalLabels %}
-<table>
-    <caption>Common Labels</caption>
-    {% for key, value in normalLabels.items() %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
+{%- if normalLabels -%}
+<table><caption>Common Labels</caption>
+{%- for key, value in normalLabels.items() %}
+<tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+{%- endfor -%}
 </table>
-{% endif %}
+{%- endif %}
 
-{% if normalAnnotations %}
-<table>
-    <caption>Common Annotations</caption>
-    {% for key, value in normalAnnotations.items() %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
+{%- if normalAnnotations -%}
+<table><caption>Common Annotations</caption>
+{%- for key, value in normalAnnotations.items() %}
+<tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+{%- endfor -%}
 </table>
-{% endif %}
+{%- endif -%}

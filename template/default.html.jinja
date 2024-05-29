@@ -10,5 +10,7 @@
 {%- for key, value in alert['values'].items() -%}
 <b>{{ key }}:</b> {{ value }}<br>
 {%- endfor %}
+{%- else -%}
+<b>Value:</b> [no value]<br>
 {%- endif %}
 {%- endfor %}{% endif %}

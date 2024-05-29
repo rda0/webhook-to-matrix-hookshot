@@ -7,4 +7,5 @@
 {{- "\n" + key }} = {{ value }}
 {%- endfor -%}
 {{- "\n" if not loop.last }}
+{{- " Value: [no value]" if not alert['values'] }}
 {%- endfor %}
